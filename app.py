@@ -6,7 +6,39 @@ import asyncio
 from twikit import Client
 import nest_asyncio
 from  twitter import tweeteeer
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
+import openai
+import uvicorn
 
+import re
+import json
+from llama_index.core import (
+    VectorStoreIndex,
+    SimpleDirectoryReader,
+    StorageContext,
+    ServiceContext,
+    load_index_from_storage
+)
+# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.core.node_parser import SentenceSplitter
+
+import warnings
+warnings.filterwarnings('ignore')
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+import requests
+from bs4 import BeautifulSoup
+import openai
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import HumanMessage, SystemMessage
+app = FastAPI()
 
 
 AI71_BASE_URL = "https://api.ai71.ai/v1/"
@@ -22,7 +54,6 @@ USERNAME = 'nickalodean9'
 EMAIL = 'nickalodean9@gmail.com'
 PASSWORD = 'Nickalodean9'
 
-app = FastAPI()
 
 async def login_to_twitter():
     await twitter_client.login(
