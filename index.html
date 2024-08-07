@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prompt Generator</title>
+<!--<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=050ZVUWg0EwfA6Ef6sS4ZwimX3D-J70OP6WRj2Leuo-CiFHWTrmZCwB3QXSsyPGOqNw_0ohdFQ7BGwfVNzkckyLHWD9U0Gm8lUTtuWD5tM663GP1VcLQdyUYSM_HnrgtSjptdHhDMiPBrzBbOkQTkqXkLkMcrgYTIszc96vrfvDrxKB_QkMqMxjulkEgI1rRsnSMo2LjS8t0dtLLOHgP2RGUBXGyeL1oiPKivCADjalftGI4aRv6hn5qwhKoJnHoczmzqtwd1guwVmyxcUPN5Q" charset="UTF-8"></script><link rel="stylesheet" crossorigin="anonymous" href="https://gc.kis.v2.scr.kaspersky-labs.com/E3E8934C-235A-4B0E-825A-35A08381A191/abn/main.css?attr=aHR0cHM6Ly9jZG4uZGlzY29yZGFwcC5jb20vYXR0YWNobWVudHMvMTI2OTk3OTEyODQ2ODM0MDgyNy8xMjY5OTc5NTk2MTU0MjEyNDA1L2luZGV4Lmh0bWw_ZXg9NjZiMjA4MmEmaXM9NjZiMGI2YWEmaG09YWYzOTdkMjY3NjFhYmVkZGYwNWZkZTlmNGQyOWNhYWMxZjhiOWVmYmVhZmE3OTYxZWVlMDk2NGU4MTdlMGU4MiY"/>-->
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: #333;
+        text-align: center;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    input[type="text"] {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    button[type="submit"] {
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button[type="submit"]:hover {
+        background-color: #3e8e41;
+    }
+    #show-text-btn {
+        background-color: #2196F3;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+    #show-text-btn:hover {
+        background-color: #0b7dda;
+    }
+    #predicted-text {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #loading {
+        display: none;
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+</style>
+</head>
+<body>
+    <h1>Prompt Generator</h1>
+    <form id="prompt-form">
+        <input type="text" id="prompt" name="prompt" placeholder="Enter your prompt here...">
+        <button type="submit">Generate</button>
+    </form>
+    <div id="output"></div>
+    <button id="show-text-btn" style="display: none;">Show Text</button>
+    <div id="predicted-text" style="display: none;"></div>
+    <button id="post-to-twitter-btn" style="display: none;">Post to Twitter</button>
+
+    <script>
+        const form = document.getElementById('prompt-form');
+        const showTextBtn = document.getElementById('show-text-btn');
+        const predictedTextDiv = document.getElementById('predicted-text');
+        const postToTwitterBtn = document.getElementById('post-to-twitter-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const prompt = document.getElementById('prompt').value;
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: prompt
+            });
+            const data = await response.json();
+            showTextBtn.style.display = 'block';
+            predictedTextDiv.innerText = data.output;
+        });
+
+        showTextBtn.addEventListener('click', () => {
+            predictedTextDiv.style.display = predictedTextDiv.style.display === 'none' ? 'block' : 'none';
+            postToTwitterBtn.style.display = 'block';
+        });
+
+        postToTwitterBtn.addEventListener('click', async () => {
+            const text = predictedTextDiv.innerText;
+            const response = await fetch('/post_to_twitter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: text
+            });
+            const data = await response.json();
+            alert(data.message);
+        });
+    </script>
+</body>
+</html>
