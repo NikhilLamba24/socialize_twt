@@ -284,7 +284,7 @@ async def generate(request: Request):
 async def post_to_twitter_endpoint(request: Request):
     text = (await request.body()).decode("utf-8")
     print("twitter text___________:",text)
-    await tweeteeer(text[:180])
+    await tweeteeer(text)
     return {"message": "posted bhaiya"}
 
 @app.get("/")
