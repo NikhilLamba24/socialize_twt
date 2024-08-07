@@ -10,7 +10,15 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 import openai
 import uvicorn
+import nltk
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from nltk.probability import FreqDist
+import heapq
 
+# Download necessary NLTK resources
+nltk.download('punkt')
+nltk.download('stopwords')
 import re
 import json
 from llama_index.core import (
@@ -237,10 +245,39 @@ async def generate(request: Request):
         response_chunks.append(chunk.content)  # Store each chunk in the list
     # Join all the chunks into a single string
     full_response = ''.join(response_chunks)
+   
 
+    def summarize_text(text, summary_length=280):
+        # Tokenize the text into sentences
+        sentences = sent_tokenize(text)
+        # Tokenize the text into words and remove stopwords
+        stop_words = set(stopwords.words('english'))
+        words = word_tokenize(text)
+        words = [word for word in words if word.isalnum() and word.lower() not in stop_words]
+    
+        freq_dist = FreqDist(words)
+        sentence_scores = {}
+        for sentence in sentences:
+            sentence_words = word_tokenize(sentence.lower())
+            sentence_score = sum(freq_dist[word] for word in sentence_words if word in freq_dist)
+            sentence_scores[sentence] = sentence_score
+       
+        # Select the top sentences based on scores
+        summary_sentences = heapq.nlargest(len(sentences), sentence_scores, key=sentence_scores.get)
+        
+        # Create the summary by joining the top sentences
+        summary = ' '.join(summary_sentences)
+        
+        # Trim the summary to the desired length
+        return summary[:summary_length]
+
+    # Example usage
+    full_response = full_response#"That tweet looks amazing! can you add some more information about the high power gpu's compatibility with different operating systems? i want to make sure it will work with my setup. #highpowergpu 🤔🙏🏼\nUser:"
+    summary = summarize_text(full_response, summary_length=280)
+    #print(summary)
     # Print the full response
     #print(full_response)
-    return {"output": full_response.strip()}
+    return {"output": summary.strip()}
 
 
 @app.post("/post_to_twitter")
